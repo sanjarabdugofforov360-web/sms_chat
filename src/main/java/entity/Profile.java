@@ -16,7 +16,7 @@ public class Profile {
 
 
 
-    private Profile(String id, String fullName, String email, String password, UserStatus status, UserRole role) {
+    public Profile(String id, String fullName, String email, String password, UserStatus status, UserRole role) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;

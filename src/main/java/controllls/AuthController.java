@@ -1,79 +1,95 @@
 package controllls;
 
+import dtos.LoginDto;
 import dtos.UserDto;
-import jakarta.mail.*;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
+import enums.UserRole;
 import servise.AuthServise;
 
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.time.LocalTime;
-import java.util.Locale;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 import static utils.Utill.*;
-public class AuthController {
-    private AuthServise authServise=AuthServise.geInstanse();
 
-    public void  authMenu(){
-        while(true){
+public class AuthController {
+    private final AuthServise authServise = AuthServise.geInstanse();
+
+    public void authMenu() {
+        while (true) {
             System.out.println("""
                     1 login
                     2 registration
                     0 exit""");
-            int menu = scStr.nextInt();
-            switch(menu){
-                case 1->{login();}
-                case 2->{registration();}
-                case 0->{return;}
+            int menu = getNum("Menuni tanlang ");
+            switch (menu) {
+                case 1 -> {
+                    login();
+                }
+                case 2 -> {
+                    registration();
+                }
+                case 0 -> {
+                    return;
+                }
             }
         }
     }
-    public void login(){
-        String email=getStr("Enter your email");
-        String password=getStr("Enter your password");
 
+    public void login() {
+        String email = getStr("Enter your email");
+        String password = getStr("Enter your password");
+
+        LoginDto logindto = new LoginDto(email, password);
+
+        Optional<UserRole> optional = authServise.login(logindto);
+
+        if (optional.isEmpty()) {
+            System.out.println("Invalid email or password");
+            authMenu();
+        }
+
+        UserRole role = optional.get();
+
+        if (role.equals(UserRole.USER)) {
+            //userMenu();
+        } else if (role.equals(UserRole.ADMIN)) {
+            //adminMenu();
+        }
 
 
     }
 
 
+    public void registration() {
+        String fullName = getStr("Enter your fullName: ");
+        String email = getStr("Enter your email");
+        String password = getStr("Create your password");
 
-    public void registration(){
-        String fullname=getStr("Enter your fullname: ");
-        String email=getStr("Enter your email: ");
-        String pasword=getStr("Create your password: ");
+        int randomNumber = new Random().nextInt(10000, 100000);
 
-        int randomNumber=new Random().nextInt(10000,100000);
-
-        sendMessage(email,randomNumber );
-        LocalTime localTime=LocalTime.now().plusMinutes(1);
-        int number=getNum("Enter code: ");
-        if (localTime.isAfter(LocalTime.now())&&number==randomNumber){
+        sendMessage(email, randomNumber);
+        LocalTime localTime = LocalTime.now().plusMinutes(5);
+        int number = getNum("Enter code: ");
+        if (localTime.isAfter(LocalTime.now()) && number == randomNumber) {
             System.out.println("   ok   ");
-            UserDto userDto=new UserDto(fullname,email,pasword);
-            boolean res=authServise.registraton(userDto);
-            if (res){
+            UserDto userDto = new UserDto(fullName, email, password);
+            boolean res = authServise.registraton(userDto);
+            if (res) {
                 System.out.println("success");
-            }else  {
-                System.out.println("fail");
+            } else {
+                System.out.println("Email already in use");
             }
-        }
-        else{
-            System.out.println("Errorr");
+        } else {
+            System.out.println("Error");
         }
 
 
     }
-
-
-
-
-
-
-
-
 
 
     private void sendMessage(String email, int num) {
@@ -87,9 +103,9 @@ public class AuthController {
         String password = "407d3e418ab8d7";
 
 
-        Session session = Session.getInstance(properties, new jakarta.mail.Authenticator() {
+        Session session = Session.getInstance(properties, new Authenticator() {
             @Override
-            protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
+            protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(userName, password);
             }
         });
@@ -116,7 +132,5 @@ public class AuthController {
 
         System.out.println("Message sending initiated...");
     }
-
-
-
 }
+

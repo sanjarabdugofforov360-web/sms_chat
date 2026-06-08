@@ -6,16 +6,16 @@ import java.util.Optional;
 
 public class UserRepository {
 
-    private  static UserRepository authrepository;
+    private  static UserRepository userRepository;
 
     private UserRepository(){
 
     }
     public static UserRepository geInstanse(){
-        if(authrepository==null){
-            authrepository=new UserRepository();
+        if(userRepository==null){
+            userRepository=new UserRepository();
         }
-        return authrepository;
+        return userRepository;
     }
     public  void  savaUser(Profile profile){
 
